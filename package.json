@@ -1,0 +1,20 @@
+{
+  "name": "notion-api-test1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "canvas": "^2.11.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
