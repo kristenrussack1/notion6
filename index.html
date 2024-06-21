@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.anychart.com/releases/8.12.1/js/anychart-base.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.12.1/js/anychart-gantt.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+    async function fetchProjects() {
+      const rest = await fetch("https://kristenrussack1.github.io/notion6/", { mode: 'no-cors' });
+      const data = await rest.json();
+      return data;
+    }
+
+    // Fetch data from the backend and render the chart
+    async function fetchDataAndRenderChart() {
+      const projects = await fetchProjects();
+
+
+      const currentDate = new Date().toISOString().split('T')[0];
+
+      anychart.onDocumentReady(function () {
+        // Format the data
+        let formattedData = projects.map(value => {
+          return {
+            markers: [{value: currentDate, type: "line", size: "3.5"}],
+            id: value.id,
+            name: value.name,
+            actualStart: new Date(value.actualStart),
+            actualEnd: new Date(value.actualEnd),
+            children: Array.isArray(value.children) ? value.children.map(subitem => ({
+              markers: [{value: currentDate, type: "line", size: "3.5"}],
+              id: subitem.id,
+              name: subitem.name,
+              actualStart: new Date(subitem.actualStart),
+              actualEnd: new Date(subitem.actualEnd),
+              progressValue: subitem.progressValue,
+              progress: subitem.progress
+            })) : []
+          };
+        });
+
+        // Create a data tree
+        var treeData = anychart.data.tree(formattedData, "as-tree");
+
+        // Create a chart
+        var chart = anychart.ganttProject();
+
+        // Set the data
+        chart.data(treeData);
+
+        chart.getTimeline().markers().fill("dark red");
+        chart.getTimeline().markers().stroke("dark red");
+        // chart.getTimeline().markers().normal().width(35);
+
+        // Set the container id
+        chart.container("container");
+
+        // Initiate drawing the chart
+        chart.draw();
+
+        // Fit elements to the width of the timeline
+        chart.fitAll();
+
+
+        chart.getTimeline().scale().zoomLevels([
+  [
+    {unit: "month", count: 1},
+    {unit: "year", count: 1}
+  ]
+]);
+
+
+var header = chart.getTimeline().header();
+header.level(2).format(function() {
+  return "Kazvu Lab's Development Phasese and Milestones";
+});
+// header.level(2).fill("#64b5f6 0.2");
+header.level(2).stroke("#64b5f6");
+// header.level(2).fontColor("#64b5f6");
+header.level(2).fontWeight(1000);
+header.level(2).fontSize(30);
+// header.level(2).fontColor(black);
+
+
+header.level(2).height(35);
+      });
+    }
+
+    fetchDataAndRenderChart();
+  </script>
+</body>
+</html>
